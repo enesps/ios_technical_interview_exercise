@@ -95,6 +95,7 @@ extension DiscoverViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CustomTableViewCell", for: indexPath) as! PostCell
         let post = viewModel.posts[indexPath.row]
         cell.configure(with: post)
+       
         return cell
     }
     

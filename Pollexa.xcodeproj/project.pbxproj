@@ -28,6 +28,8 @@
 		E05E742A2C1430E900FE3A78 /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05E74292C1430E900FE3A78 /* CustomTableViewCell.swift */; };
 		E05E742C2C143A4000FE3A78 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05E742B2C143A4000FE3A78 /* Date.swift */; };
 		E091FAFD2C146AC700D15396 /* DicoverCellSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E091FAFC2C146AC700D15396 /* DicoverCellSection.swift */; };
+		E0DE32B22C1CDDC600EA1420 /* Like.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E0DE32B02C1CDDC600EA1420 /* Like.xcdatamodeld */; };
+		E0DE32B42C1CE39B00EA1420 /* Like.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0DE32B32C1CE39B00EA1420 /* Like.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +54,8 @@
 		E05E74292C1430E900FE3A78 /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 		E05E742B2C143A4000FE3A78 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		E091FAFC2C146AC700D15396 /* DicoverCellSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DicoverCellSection.swift; sourceTree = "<group>"; };
+		E0DE32B12C1CDDC600EA1420 /* Post.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Post.xcdatamodel; sourceTree = "<group>"; };
+		E0DE32B32C1CE39B00EA1420 /* Like.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Like.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +96,8 @@
 				6E3A36222BF25FFC00ECE78C /* Helpers */,
 				6E3A361E2BF25FC900ECE78C /* Resources */,
 				6E3A36232BF2600700ECE78C /* Utilities */,
+				E0DE32B02C1CDDC600EA1420 /* Like.xcdatamodeld */,
+				E0DE32B32C1CE39B00EA1420 /* Like.swift */,
 			);
 			path = Pollexa;
 			sourceTree = "<group>";
@@ -298,6 +304,7 @@
 				6E3A361A2BF25DAC00ECE78C /* User.swift in Sources */,
 				E05E741C2C13959200FE3A78 /* SplashViewModel.swift in Sources */,
 				E091FAFD2C146AC700D15396 /* DicoverCellSection.swift in Sources */,
+				E0DE32B42C1CE39B00EA1420 /* Like.swift in Sources */,
 				E05E74252C13B0F500FE3A78 /* UIImageView.swift in Sources */,
 				6E3A36162BF25D8D00ECE78C /* PostProvider.swift in Sources */,
 				E05E74282C13B34A00FE3A78 /* HeaderItem.swift in Sources */,
@@ -308,6 +315,7 @@
 				6E3A36182BF25DA800ECE78C /* Post.swift in Sources */,
 				E05E74232C13B04D00FE3A78 /* DiscoverViewModel.swift in Sources */,
 				E05E74142C138EB200FE3A78 /* SplashViewController.swift in Sources */,
+				E0DE32B22C1CDDC600EA1420 /* Like.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -554,6 +562,19 @@
 			productName = "SnapKit-Dynamic";
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		E0DE32B02C1CDDC600EA1420 /* Like.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				E0DE32B12C1CDDC600EA1420 /* Post.xcdatamodel */,
+			);
+			currentVersion = E0DE32B12C1CDDC600EA1420 /* Post.xcdatamodel */;
+			path = Like.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 6E3A35F62BF2563400ECE78C /* Project object */;
 }

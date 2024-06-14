@@ -1,4 +1,5 @@
 import UIKit
+
 class PostCell: UITableViewCell {
     private var postId: String?
     private let containerView: UIView = {
@@ -60,6 +61,7 @@ class PostCell: UITableViewCell {
     }()
     private var selectedOption: OptionView?
     private var voteTimestamp: Date?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
@@ -67,11 +69,11 @@ class PostCell: UITableViewCell {
         setupViews()
         configureButtonActions()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func setupViews() {
         contentView.addSubview(containerView)
         containerView.addSubview(separatorView)
@@ -82,74 +84,78 @@ class PostCell: UITableViewCell {
         containerView.addSubview(questionLabel)
         containerView.addSubview(pollOptionsStackView)
         containerView.addSubview(votesLabel)
-        
+
         pollOptionsStackView.addArrangedSubview(optionView1)
         pollOptionsStackView.addArrangedSubview(optionView2)
-        
+
         containerView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(20)
         }
-        
+
         separatorView.snp.makeConstraints { make in
             make.height.equalTo(0.5)
             make.left.equalTo(containerView).offset(20)
             make.right.equalTo(containerView).offset(-20)
             make.bottom.equalTo(containerView)
         }
-        
+
         avatarView.snp.makeConstraints { make in
             make.width.height.equalTo(32)
             make.left.equalTo(containerView).offset(20)
             make.top.equalTo(containerView).offset(10)
         }
-        
+
         fullNameLabel.snp.makeConstraints { make in
             make.left.equalTo(avatarView.snp.right).offset(10)
             make.centerY.equalTo(avatarView)
         }
-        
+
         publishDateLabel.snp.makeConstraints { make in
             make.right.equalTo(containerView).offset(-20)
             make.centerY.equalTo(avatarView)
         }
-        
+
         headingLabel.snp.makeConstraints { make in
             make.top.equalTo(avatarView.snp.bottom).offset(20)
             make.left.equalTo(containerView).offset(20)
         }
-        
+
         questionLabel.snp.makeConstraints { make in
             make.top.equalTo(headingLabel.snp.bottom).offset(5)
             make.left.equalTo(containerView).offset(20)
             make.right.equalTo(containerView).offset(-20)
         }
-        
+
         pollOptionsStackView.snp.makeConstraints { make in
             make.top.equalTo(questionLabel.snp.bottom).offset(20)
             make.left.equalTo(containerView).offset(20)
             make.right.equalTo(containerView).offset(-20)
             make.height.equalTo(170) // Adjust height as needed
         }
-        
+
         votesLabel.snp.makeConstraints { make in
             make.top.equalTo(pollOptionsStackView.snp.bottom).offset(10)
             make.left.equalTo(containerView).offset(20)
             make.bottom.equalTo(separatorView.snp.top).offset(-10)
         }
     }
+
     private func configureButtonActions() {
-           optionView1.likeButton.addTarget(self, action: #selector(option1Tapped), for: .touchUpInside)
-           optionView2.likeButton.addTarget(self, action: #selector(option2Tapped), for: .touchUpInside)
-       }
-       
-       @objc private func option1Tapped() {
-           handleOptionSelection(option: optionView1)
-       }
-       
-       @objc private func option2Tapped() {
-           handleOptionSelection(option: optionView2)
-       }
+        optionView1.likeButton.addTarget(self, action: #selector(option1Tapped), for: .touchUpInside)
+        optionView2.likeButton.addTarget(self, action: #selector(option2Tapped), for: .touchUpInside)
+    }
+
+    @objc private func option1Tapped() {
+        handleOptionSelection(option: optionView1)
+    }
+
+    @objc private func option2Tapped() {
+        handleOptionSelection(option: optionView2)
+    }
+
     private func handleOptionSelection(option: OptionView) {
+        guard let postId = postId else { return }
+
         if selectedOption == option {
             selectedOption?.likeButton.tintColor = .white
             selectedOption = nil
@@ -159,22 +165,13 @@ class PostCell: UITableViewCell {
             selectedOption = option
             voteTimestamp = Date()
             updateHeadingLabel()
+            
+            let selectedOptionKey = (option == optionView1) ? "option_1" : "option_2"
+            LikeManager.shared.saveLike(for: postId, option: selectedOptionKey)
+            updateVotesLabel()
         }
     }
-    private func stringFromTimeInterval(interval: TimeInterval) -> String {
-        let ti = NSInteger(interval)
-        let seconds = ti % 60
-        let minutes = (ti / 60) % 60
-        let hours = (ti / 3600)
-        if hours > 0 {
-            return "\(hours)h \(minutes)m \(seconds)s"
-        } else if minutes > 0 {
-            return "\(minutes)m \(seconds)s"
-        } else {
-            return "\(seconds)s"
-        }
-    }
- 
+
     private func updateHeadingLabel() {
         guard let postId = postId,
               let like = LikeManager.shared.getLike(for: postId) else {
@@ -182,29 +179,55 @@ class PostCell: UITableViewCell {
             return
         }
         
-        let elapsedTime = Date().timeIntervalSince(like.timestamp)
+        let elapsedTime = Date().timeIntervalSince(like.timestamp ?? Date())
         let elapsedTimeString = stringFromTimeInterval(interval: elapsedTime)
         headingLabel.text = "Last voted \(elapsedTimeString) ago"
     }
-    
-        func configure(with post: Post) {
+
+    private func updateVotesLabel() {
+        guard let postId = postId else { return }
+
+        let totalVotes = LikeManager.shared.getTotalLikes(for: postId)
+        votesLabel.text = "\(totalVotes) Total Votes"
+
+        // Yüzdeleri hesapla ve güncelle
+        let likes = LikeManager.shared.getLikes(for: postId)
+        let totalLikes = likes.count
+        if totalLikes > 0 {
+            let option1Votes = likes.filter { $0.optionId == "option_1" }.count
+            let option2Votes = likes.filter { $0.optionId == "option_2" }.count
+            let option1Percentage = Double(option1Votes) / Double(totalLikes)
+            let option2Percentage = Double(option2Votes) / Double(totalLikes)
+            optionView1.setPercentage(option1Percentage)
+            optionView2.setPercentage(option2Percentage)
+        }
+    }
+
+    func configure(with post: Post) {
+        self.postId = post.id
         fullNameLabel.text = post.user.username
         publishDateLabel.text = post.createdAt.timeAgoDisplay()
-        headingLabel.text = "cas"
         questionLabel.text = post.content
         avatarView.setImage(UIImage(named: post.user.imageName))
         optionView1.setImage(UIImage(named: post.options.first?.imageName ?? ""))
         optionView2.setImage(UIImage(named: post.options.last?.imageName ?? ""))
-            updateHeadingLabel()
-            updateVotesLabel()
+        
+        updateHeadingLabel()
+        updateVotesLabel()
     }
-    private func updateVotesLabel() {
-        guard let postId = postId else { return }
+
+    private func stringFromTimeInterval(interval: TimeInterval) -> String {
+        let time = NSInteger(interval)
+        let seconds = time % 60
+        let minutes = (time / 60) % 60
+        let hours = (time / 3600)
         
-        let totalLikes = LikeManager.shared.getTotalLikes(for: postId)
-        let option1Likes = totalLikes["option_1"] ?? 0
-        let option2Likes = totalLikes["option_2"] ?? 0
-        
-        votesLabel.text = "Option 1: \(option1Likes) votes, Option 2: \(option2Likes) votes"
+        if hours > 0 {
+            return String(format: "%0.2d hours", hours)
+        } else if minutes > 0 {
+            return String(format: "%0.2d minutes", minutes)
+        } else {
+            return String(format: "%0.2d seconds", seconds)
+        }
     }
 }

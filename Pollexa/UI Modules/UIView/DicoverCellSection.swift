@@ -41,7 +41,7 @@ class TextView: UILabel {
 }
 
 class OptionView: UIView {
-     let imageView: UIImageView = {
+    let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 8
@@ -50,17 +50,32 @@ class OptionView: UIView {
         return imageView
     }()
     
-     let likeButton: UIButton = {
+    let likeButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(UIImage(systemName: "hand.thumbsup.fill"), for: .normal)
         button.tintColor = .white
         return button
     }()
     
+    let percentageLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 13) // Bold font
+        label.textColor = .white // White color
+        label.textAlignment = .center
+        label.backgroundColor = UIColor(red: 30/255, green: 144/255, blue: 255/255, alpha: 1.0) // Bright background color
+        label.layer.cornerRadius = 4
+        label.layer.masksToBounds = true
+        label.isHidden = true // Initially hidden
+        return label
+    }()
+    
+    
     init(image: UIImage?) {
         super.init(frame: .zero)
         addSubview(imageView)
         addSubview(likeButton)
+        addSubview(percentageLabel)
+        
         imageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -69,6 +84,12 @@ class OptionView: UIView {
             make.bottom.equalToSuperview().offset(-10)
             make.width.height.equalTo(30)
         }
+        percentageLabel.snp.makeConstraints { make in
+                   make.bottom.equalToSuperview().offset(-10) // Top aligned with superview
+                   make.right.equalToSuperview().offset(-10) // Right aligned with superview
+                   make.width.equalTo(50) // Fixed width
+                   make.height.equalTo(20) // Fixed height
+               }
         imageView.image = image
     }
     
@@ -79,8 +100,13 @@ class OptionView: UIView {
     func setImage(_ image: UIImage?) {
         imageView.image = image?.scaledToSize(size: CGSize(width: 100, height: 100))
     }
+    
+    func setPercentage(_ percentage: Double) {
+        percentageLabel.text = "\(Int(percentage * 100))%"
+        percentageLabel.isHidden = false
+        likeButton.isHidden = true
+    }
 }
-
 class VotesLabel: UILabel {
     init(text: String?) {
         super.init(frame: .zero)

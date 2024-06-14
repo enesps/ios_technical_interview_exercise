@@ -1,48 +1,4 @@
-////
-////  PostOption.swift
-////  Pollexa
-////
-////  Created by Emirhan Erdogan on 13/05/2024.
-////
-//
-//import UIKit
-//
-//extension Post {
-//    
-//    struct Option: Decodable {
-//        
-//        // MARK: - Types
-//        enum CodingKeys: String, CodingKey {
-//            case id
-//            case imageName
-//        }
-//        
-//        // MARK: - Properties
-//        let id: String
-//        let image: UIImage
-//        
-//        // MARK: - Life Cycle
-//        init(from decoder: any Decoder) throws {
-//            let container = try decoder.container(keyedBy: CodingKeys.self)
-//            
-//            id = try container.decode(String.self, forKey: .id)
-//            
-//            let imageName = try container.decode(
-//                String.self,
-//                forKey: .imageName
-//            )
-//            
-//            if let image = UIImage(named: imageName) {
-//                self.image = image
-//            } else {
-//                throw DecodingError.dataCorrupted(.init(
-//                    codingPath: [CodingKeys.imageName],
-//                    debugDescription: "An image with name \(imageName) could not be loaded from the bundle.")
-//                )
-//            }
-//        }
-//    }
-//}
+
 import Foundation
 
 struct PostLike: Codable {
@@ -51,44 +7,73 @@ struct PostLike: Codable {
     let timestamp: Date
 }
 
+
+import CoreData
+import UIKit
+
 class LikeManager {
     static let shared = LikeManager()
-    
-    private let likesKey = "user_likes"
-    
+
+    private init() {}
+
+    private var context: NSManagedObjectContext {
+        return (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    }
+
     func saveLike(for postId: String, option: String) {
-        let like = PostLike(postId: postId, likedOption: option, timestamp: Date())
-        var likes = getLikes()
-        likes[postId] = like
-        saveLikes(likes)
+        let like = Like(context: context)
+        like.postId = postId
+        like.optionId = option
+        like.timestamp = Date()
+        saveContext()
     }
-    
-    func getLike(for postId: String) -> PostLike? {
-        let likes = getLikes()
-        return likes[postId]
-    }
-    
-    func getTotalLikes(for postId: String) -> [String: Int] {
-        let likes = getLikes().filter { $0.key == postId }
-        var optionCounts = [String: Int]()
+
+    func getLike(for postId: String) -> Like? {
+        let request: NSFetchRequest<Like> = Like.fetchRequest()
+        request.predicate = NSPredicate(format: "postId == %@", postId)
         
-        for like in likes.values {
-            optionCounts[like.likedOption, default: 0] += 1
+        do {
+            let likes = try context.fetch(request)
+            return likes.last
+        } catch {
+            print("Failed to fetch like: \(error)")
+            return nil
         }
+    }
+
+    func getTotalLikes(for postId: String) -> Int {
+        let request: NSFetchRequest<Like> = Like.fetchRequest()
+        request.predicate = NSPredicate(format: "postId == %@", postId)
         
-        return optionCounts
-    }
-    
-    private func getLikes() -> [String: PostLike] {
-        guard let data = UserDefaults.standard.data(forKey: likesKey),
-              let likes = try? JSONDecoder().decode([String: PostLike].self, from: data) else {
-            return [:]
+        do {
+            let likes = try context.fetch(request)
+            return likes.count
+        } catch {
+            print("Failed to fetch likes: \(error)")
+            return 0
         }
-        return likes
     }
-    
-    private func saveLikes(_ likes: [String: PostLike]) {
-        guard let data = try? JSONEncoder().encode(likes) else { return }
-        UserDefaults.standard.set(data, forKey: likesKey)
+    func getLikes(for postId: String) -> [Like] {
+        let request: NSFetchRequest<Like> = Like.fetchRequest()
+        request.predicate = NSPredicate(format: "postId == %@", postId)
+        
+        do {
+            let likes = try context.fetch(request)
+            return likes
+        } catch {
+            print("Failed to fetch likes: \(error)")
+            return []
+        }
+    }
+
+    private func saveContext() {
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
+        }
     }
 }
